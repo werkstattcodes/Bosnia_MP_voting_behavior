@@ -1,0 +1,37 @@
+---
+title: "Voting behavior in BiH Parliament"
+author: "Roland Schmidt"
+date: "12/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+A while ago I noticed that the website of Bosnia's parliament now also provides the records for MPs indiviudal voting behavior. While the dominant role of the ethnic cleavage in Bosnia's politics is widely acknowledged (to an extend which blanks out other salient issues), I hadn't seen any detailed empirical record on MP's voting behavior for a while (one insightful exception is Birgit Kunrath's 2011 [paper](https://www.cambridge.org/core/journals/nationalities-papers/article/of-veto-players-and-entityvoting-institutional-gridlock-in-the-bosnian-reform-process/96BB80A5191E12B40F501841546C151D){target="_blank"}). 
+
+As so often with empirical research is challenges less the analysis of the data itself, but if 'liberating' it from the format it is provided. In this case, the the voting records for both the House of Peoples (upper chamber) and the House of Representative (lower chamber) are provided in pdfs, such as this one or this one. The 
+
+
+This post digs into the now available records for the 2014-2018 Parliament. 
+
+
+
+
+The first part presents the output, the second highlights the most relevant steps in R to produce them. As always, if you see any glaring error, feel free to let me know (best via twitter DM).
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
