@@ -41,13 +41,13 @@ df_houses <- file_list %>%
                          str_detect(raw_text, "naroda") ~ "HoP",
                          TRUE ~ as.character("missing")))
 
-table(df_houses$house, useNA=c("always")) #285 files could not be scrapped;
+table(df_houses$house, useNA=c("always")) 
 
-#hence ocr needed;
+#285 files could not be scrapped; #hence ocr needed;
 
 
 
-# conitinue with ocr resutls ----------------------------------------------
+# conitinue with ocr results  ----------------------------------------------
 
 df_ocr_results <- readr::read_csv2(file = paste0(wdr, "/data/df_ocr_results.csv")) # from script ocr_files.R
 
@@ -76,7 +76,7 @@ df_ocr_results <- df_ocr_results %>%
                            
 df_ocr_results <- df_ocr_results %>%
   mutate(raw_text = stringr::str_squish(raw_text)) %>%
-  mutate(seesion_no = stringr::str_squish(raw_text) %>% stringr::str_extract(., "[0-9]+(?=\\.?\\s?sjednic)")) %>%
+  mutate(session_no = stringr::str_squish(raw_text) %>% stringr::str_extract(., "[0-9]+(?=\\.?\\s?sjednic)")) %>%
   mutate(vote_no = stringr::str_extract(raw_text, "(?<=(Glasanje br:\\s?|Redni broj.{0,20}))[0-9]+")) %>% 
   mutate(session_date = str_extract(raw_text, "[0-9]{1,2}/[0-9]{1,2}/20[0-9]{2}|[0-9]{1,2}.[0-9]{2}.20[0-9]{2}|[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}|[0-9]{1,2}.[:alpha:]+20[1-9]{2}."))
 
@@ -102,7 +102,7 @@ df_ocr_results <- df_ocr_results %>%
       ),
       vote = case_when(str_detect(delegate_raw, regex(" za", ignore_case = T)) ~ "yes",  #space before is important; attention suzdrZAn;
                            str_detect(delegate_raw, regex(" protiv", ignore_case = T)) ~ "no",
-                           str_detect(delegate_raw, regex(" suzdrzan", ignore_case = T)) ~ "restrained", #reserved
+                           str_detect(delegate_raw, regex(" suzdrzan", ignore_case = T)) ~ "abstained", #reserved
                            str_detect(delegate_raw, regex(" nije glasao", ignore_case = T)) ~ "no vote", 
                            str_detect(delegate_raw, regex(" nije prisutan", ignore_case = T)) ~ "not present",
                        TRUE ~ as.character("missing")
@@ -135,10 +135,13 @@ df_ocr_results_unnested<- df_ocr_results_unnested %>%
                                    str_detect(delegate_name, "Asim Sarajlib") ~ "Asim Sarajlic",
                                    str_detect(delegate_name, "Borislav Boji") ~ "Borislav Bojic",
                                    str_detect(delegate_name, "Ljiulja Zovko") ~ "Ljilja Zovko",
+                                   str_detect(delegate_name, "D. Nermina") ~ "Nermina Kapetanovic",
+                                   str_detect(delegate_name, "D. Safer") ~ "Safer Demirovic",
+                                   str_detect(delegate_name, "Magazinovic") ~ "Sasa Magazinovic",
                                    TRUE ~ as.character(delegate_name))) %>% 
   mutate(delegate_name_2=paste(str_remove(delegate_name, "^[:alpha:]+\\s"),
-                               word(delegate_name, 1), sep=", "))
-
+                               word(delegate_name, 1), sep=", ")) %>% 
+  mutate(delegate_name_family=stringr::word(delegate_name, -1))
 
 table(df_ocr_results_unnested$vote, useNA = c("always"))
 
@@ -157,9 +160,6 @@ df_ocr_results_unnested %>%
   summarise(n_unique=length(unique(delegate_name)))
 #rather remarkable; high fluctuation among MPs; 136 HoR, 28 HoP
 
-
-df_ocr_results_unnested$delegate_name
-df_members_parliament$name
 
 
 # import party affiliation ------------------------------------------------
@@ -203,6 +203,21 @@ votes_check <- df_ocr_results_unnested %>%
 votes_check
 
 
+#assign ethnicity to party
+df_ocr_results_unnested <- df_ocr_results_unnested %>% 
+  mutate(ethnicity=case_when(str_detect(party, "A-SDA|BPS|SBB|SDA|SBiH") ~ "Bosniak",
+                             str_detect(party, "SDP|DF") ~ "civic",
+                             party %in% c("DNS", "PDP-NDP", "SDS", "SNSD") ~ "Serb",
+                             party %in% c("independent") ~ "independent",
+                             str_detect(party, "HDZ|HSS|HSP") ~ "Croat",
+                             TRUE ~ NA_character_))
+
+table(df_ocr_results_unnested$ethnicity, useNA = c("always")) #few parties not yet assigned
+
+df_ocr_results_unnested %>% 
+  filter(is.na(ethnicity)) %>% 
+  distinct(party, ethnicity)
+
 # export file -------------------------------------------------------------
 write_csv2(df_ocr_results_unnested %>% 
              select(-raw_text2), path=paste0(wdr, "/data/df_ocr_results_unnested.csv")) #raw_text2 class list
@@ -224,7 +239,7 @@ delegate_party <- df_ocr_results_unnested %>%
 table(delegate_party$party, useNA = c("always"))
 
 length(unique(df_ocr_results_unnested$law_id))
-#151 law ids but 162 laws?!
+#151 law ids but 162 laws?! pending?
 
 
 

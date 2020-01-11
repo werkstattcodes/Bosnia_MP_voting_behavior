@@ -64,7 +64,7 @@ df_missing_ocr_results
 #there is one pdf which is badly scanned and leads to inconsistencies with the names
 bad_pdf <- "C:/Users/Roland/Google Drive/Events - Projects/R-Projects/Bosnia_MP_voting_behavior/data/voting_records/law_id_50082-record_id_121403.pdf"	
 
-pad_pdf_ocr <- pdftools::pdf_ocr_text("C:/Users/Roland/Google Drive/Events - Projects/R-Projects/Bosnia_MP_voting_behavior/data/voting_records/law_id_50082-record_id_121403.pdf",
+bad_pdf_ocr <- pdftools::pdf_ocr_text("C:/Users/Roland/Google Drive/Events - Projects/R-Projects/Bosnia_MP_voting_behavior/data/voting_records/law_id_50082-record_id_121403.pdf",
                                       language="bos", dpi=1200)
 
 

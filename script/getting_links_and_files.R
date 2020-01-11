@@ -102,7 +102,7 @@ df_details_all_status<- df_links_to_laws$links_to_law_details %>%
                  .progress=T,
                  .id="seq_page_links")
 
-stringi::stri_enc_list()
+
 
 #*****
 #encoding checks
@@ -225,11 +225,6 @@ df_details_all_laws<- df_links_to_laws$links_to_law_details %>%
                  .id="seq_page_links")
 toc()
 
-# df_details_all_laws <- df_details_all_laws %>% 
-#   group_by(seq_page_links) %>% 
-#   mutate(house=case_when(row_number()>7 ~ "DP",
-#                            TRUE ~ "PS"))
-  
 write.csv2(df_details_all_laws, paste0(wdr,"/data/df_details_all_laws.csv"),
            row.names = F,
            fileEncoding = "latin1")
@@ -300,7 +295,7 @@ df_details_all_laws <- df_links_to_laws$links %>%
 #df_details_all_laws <- readr::read_csv2(paste0(wdr,"/data/2014_2018_law_details.csv"))
 
 df_links_to_laws <-
-  readr::read_csv2(paste0(wdr, "/data/2014_2018_law_links.csv"))
+  readr::read_csv2(paste0(wdr, "/data/df_links_to_laws.csv"))
 
 # > functions -------------------------------------------------------------
 
@@ -328,6 +323,8 @@ votes_per_bill <- df_voting_results_links %>%
   group_by(seq_page_links) %>% 
   summarise(n_votes_per_bill=n()) %>% 
   arrange(desc(n_votes_per_bill))
+
+
 votes_per_bill
 
 
