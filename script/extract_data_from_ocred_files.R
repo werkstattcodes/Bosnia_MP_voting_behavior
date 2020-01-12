@@ -32,16 +32,16 @@ fn_identify_house <- function(files){
     enframe(name=NULL, value="raw_text") 
 }
 
-df_houses <- file_list %>%  
-  set_names() %>% 
-  future_map_dfr(., fn_identify_house, .id="link") %>% 
-  mutate(raw_text=map_chr(raw_text, ~unlist(.))) %>% 
-  mutate(raw_text=iconv(raw_text, from="UTF-8", to="windows-1253")) %>% 
-  mutate(house=case_when(str_detect(raw_text, regex("Predstav*", ignore_case = T)) ~ "HoR",
-                         str_detect(raw_text, "naroda") ~ "HoP",
-                         TRUE ~ as.character("missing")))
-
-table(df_houses$house, useNA=c("always")) 
+# df_houses <- file_list %>%  
+#   set_names() %>% 
+#   future_map_dfr(., fn_identify_house, .id="link") %>% 
+#   mutate(raw_text=map_chr(raw_text, ~unlist(.))) %>% 
+#   mutate(raw_text=iconv(raw_text, from="UTF-8", to="windows-1253")) %>% 
+#   mutate(house=case_when(str_detect(raw_text, regex("Predstav*", ignore_case = T)) ~ "HoR",
+#                          str_detect(raw_text, "naroda") ~ "HoP",
+#                          TRUE ~ as.character("missing")))
+# 
+# table(df_houses$house, useNA=c("always")) 
 
 #285 files could not be scrapped; #hence ocr needed;
 
@@ -186,7 +186,14 @@ df_ocr_results_unnested<- df_ocr_results_unnested %>%
   #filter(house=="HoR") %>% 
   filter(session_date!="07.10.2015") %>%  #most inconsistencies with names are related to one document form 7.10.2015
   left_join(., df_members_parliament %>% select(name, party),
-            by=c("delegate_name"="name"))
+            by=c("delegate_name"="name")) %>% 
+  mutate(party=case_when(str_detect(delegate_name, "Bevanda") ~ "HDZ Coalition",
+         TRUE ~ as.character(party)))
+
+df_ocr_results_unnested %>% 
+  filter(str_detect(delegate_name, "Bevanda")) %>% 
+  select(party)
+
 
 #check number of delegates per vote and house
 df_ocr_results_unnested %>% 
@@ -200,7 +207,7 @@ votes_check <- df_ocr_results_unnested %>%
   summarise(n_obs=n(),
             record_ids=list(unique(record_id))) %>% 
   ungroup()
-votes_check
+votes_check #478 not 451, why?
 
 
 #assign ethnicity to party

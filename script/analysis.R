@@ -33,8 +33,11 @@ df_ocr_results_unnested <- df_ocr_results_unnested %>%
 
 #order factor of vote
 df_ocr_results_unnested <- df_ocr_results_unnested %>% 
-  mutate(vote=forcats::fct_infreq(vote))
+  mutate(vote=forcats::fct_infreq(vote)) %>% 
+  mutate(vote=forcats::fct_collapse(vote, abstained=c("abstained", "no vote")) %>% 
+           forcats::fct_drop(.))
 
+levels(df_ocr_results_unnested$vote)
 
 voting_colors <- c("no"="red",
                    "no vote" = "orange",
@@ -517,7 +520,8 @@ df_votes_delegates %>%
   scale_x_reordered()+
   scale_y_continuous(minor_breaks = NULL,
                      labels=scales::label_percent(accuracy=1),
-                     breaks=seq(0,0.8,.1))+
+                     breaks=seq(0,0.8,.1),
+                     expand=expansion(mult=c(0, 0)))+
   theme_ipsum_rc()+
   theme(axis.text.x = element_text(angle=90),
         panel.grid.major.y = element_blank(),
@@ -527,9 +531,11 @@ df_votes_delegates %>%
         plot.title.position = "plot",
         plot.caption.position = "plot",
         plot.caption = element_markdown(hjust=c(0,1)),
+        plot.margin=margin(l=0, t=0.5, b=0.5, r=0, unit="cm"),
         axis.title.y = element_blank(),
-        axis.title.x = element_text(hjust=0),
-        legend.position = "none")+
+        axis.title.x = element_blank(),
+        legend.position = "bottom",
+        legend.justification = "right")+
   lemon::facet_rep_wrap(~vote,
                         repeat.tick.labels = T,
                         ncol=2,
